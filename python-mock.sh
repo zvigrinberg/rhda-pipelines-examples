@@ -3,12 +3,15 @@ ARGUMENT=$1
 case $ARGUMENT in
   --version)
     echo "3.x"
+    exit 0
     ;;
   show)
-    cat $WORKSPACE_PATH/pip-show.txt
+    eval "cat ${WORKSPACE_PATH}/pip-show.txt"
+    exit 0
     ;;
   freeze)
-    cat $WORKSPACE_PATH/pip-freeze.txt
+    eval "cat ${WORKSPACE_PATH}/pip-freeze.txt"
+    exit 0
     ;;
 esac
-exit 0
+exit 23
