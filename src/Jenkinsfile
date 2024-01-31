@@ -17,11 +17,15 @@ node {
     stage('Install Python pip package') {
           docker.withTool('docker-tool') {
              docker.withServer('tcp://localhost:2376','docker-server-certs'){
-                 
+
                docker.image('python:3.12.1').inside(dockerArguments) {
                  sh 'pip install -r requirements.txt'
+                 pipFreezeOutput = sh(script: "pip freeze --all | awk -F \"==\" '{print \$1}'" ,returnStdout: true ).trim()
+                 writeFile([file: 'pip-freeze.txt', text: pipFreezeOutput])
                  pipFreezeOutput = sh(script: "pip freeze --all | awk -F \"==\" '{print \$1}' | tr \"\n\" \" \"" ,returnStdout: true ).trim()
                  pipShowOutput = sh(script:"pip show ${pipFreezeOutput}" ,returnStdout: true )
+                 writeFile([file: 'pip-show.txt', text: pipShowOutput])
+                   
 
                  
                }
@@ -29,9 +33,10 @@ node {
         }
     }
     stage('Run RHDA Analysis') {
-        echo "pipFreezeOutput= ${pipFreezeOutput}"
-        echo "pipShowOutput= ${pipShowOutput}"
-        rhdaAnalysis consentTelemetry: true, file: 'requirements.txt'
+
+        withEnv(['EXHORT_PIP3_PATH=./python-mock.sh','EXHORT_PYTHON3_PATH=./python-mock.sh']) {
+            rhdaAnalysis consentTelemetry: true, file: 'requirements.txt'
+        }
     }
     
 }
