@@ -11,4 +11,4 @@ case $ARGUMENT in
     cat $WORKSPACE/pip-freeze.txt
     ;;
 esac
-return 0
+exit 0
