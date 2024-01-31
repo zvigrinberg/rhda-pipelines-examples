@@ -5,10 +5,10 @@ case $ARGUMENT in
     cat 3.x
     ;;
   show)
-    cat $WORKSPACE/pip-show.txt
+    cat $WORKSPACE_PATH/pip-show.txt
     ;;
   freeze)
-    cat $WORKSPACE/pip-freeze.txt
+    cat $WORKSPACE_PATH/pip-freeze.txt
     ;;
 esac
 exit 0
