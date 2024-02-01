@@ -5,11 +5,11 @@ case $ARGUMENT in
     exit 0
     ;;
   show)
-    eval "cat ${WORKSPACE_PATH}/pip-show.txt"
+    eval "cat $PLACE_HOLDER/pip-show.txt"
     exit 0
     ;;
   freeze)
-    eval "cat ${WORKSPACE_PATH}/pip-freeze.txt"
+    eval "cat $PLACE_HOLDER/pip-freeze.txt"
     exit 0
     ;;
 esac
