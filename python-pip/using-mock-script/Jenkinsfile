@@ -3,7 +3,7 @@ node {
     def dockerArguments= '--user=root'
     def pipFreezeOutput
     def pipShowOutput
-    stage('Preparations') { // for display purposes
+    stage('Checkout Git Repo') { // for display purposes
         // Get some code from a GitHub repository
         def test = '/home/zgrinber/.jenkins/workspace/run RHDA plugin with python'.replaceAll(" ", "\\\\ ")
         echo "test=${test}"
@@ -16,13 +16,13 @@ node {
 
 
     }
-    stage('Install Python') {
+    stage('Install Python Package') {
         docker.withTool('docker-tool') {
             docker.withServer('tcp://localhost:2376','docker-server-certs'){
 
                 docker.image('python:3.12.1').inside(dockerArguments) {
                     sh 'pip install -r requirements.txt'
-                    pipFreezeOutput = sh(script: "pip freeze --all | awk -F \"==\" '{print \$1}'" ,returnStdout: true ).trim()
+                    pipFreezeOutput = sh(script: "pip freeze --all" ,returnStdout: true ).trim()
                     writeFile([file: 'pip-freeze.txt', text: pipFreezeOutput])
                     pipFreezeOutput = sh(script: "pip freeze --all | awk -F \"==\" '{print \$1}' | tr \"\n\" \" \"" ,returnStdout: true ).trim()
                     pipShowOutput = sh(script:"pip show ${pipFreezeOutput}" ,returnStdout: true )
@@ -33,17 +33,27 @@ node {
             }
         }
     }
-    stage('Run Analysis') {
+    stage('RHDA Run Analysis') {
         echo "pipFreezeOutput= ${pipFreezeOutput}"
         echo "pipShowOutput= ${pipShowOutput}"
         def rhdaWorkspace = env.WORKSPACE
         escapedWorkspace = rhdaWorkspace.toString().replaceAll(" ", "\\\\ ")
-        sh 'cp pythonMock.sh /tmp/pip ; chmod +x /tmp/pip'
         echo "escapedWorkspace= ${escapedWorkspace}"
-        withEnv(["WORKSPACE_PATH=${escapedWorkspace}","EXHORT_PIP3_PATH='/tmp/pip'","EXHORT_PYTHON3_PATH='/tmp/pip'","EXHORT_PIP_PATH=/tmp/pip","EXHORT_PYTHON_PATH=/tmp/pip",'EXHORT_DEBUG=true']) {
+        // sh 'cp pythonMock.sh /tmp/pip ; chmod +x /tmp/pip'
+        def doubleEscapedWorkspace = escapedWorkspace.replaceAll("\\\\","\\\\\\\\").replaceAll("\\/","\\\\/")
+        echo "doubleEscapedWorkspace= ${doubleEscapedWorkspace}"
+// sh(script: "echo ${escapedWorkspace} | sed 's/\\/\\\\/g' | sed 's/\//\\\//g'" ,returnStdout: true ).trim()
+        sh "sed 's/\$PLACE_HOLDER/${doubleEscapedWorkspace}/g' pythonMock.sh > /tmp/pip ; chmod +x /tmp/pip"
+        echo "escapedWorkspace= ${escapedWorkspace}"
+        withEnv(["WORKSPACE_PATH=${escapedWorkspace}","EXHORT_PIP3_PATH=/tmp/pip","EXHORT_PYTHON3_PATH=/tmp/pip"]) {
+
             rhdaAnalysis consentTelemetry: true, file: 'requirements.txt'
         }
 
+    }
+
+    stage('Clean Workspace') {
+        cleanWs cleanWhenAborted: false, cleanWhenFailure: false, cleanWhenNotBuilt: false, cleanWhenUnstable: false
     }
 
 }
