@@ -1,4 +1,3 @@
-#!/bin/sh
 ARGUMENT=$1
 case $ARGUMENT in
   --version)
