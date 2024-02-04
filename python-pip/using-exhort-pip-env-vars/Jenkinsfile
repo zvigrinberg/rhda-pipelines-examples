@@ -34,8 +34,8 @@ node {
         }
     }
     stage('RHDA Run Analysis') {
-        def pipFreezeB64= sh(script: "echo \"${pipFreezeOutput}\" | base64 -w0 " ,returnStdout: true ).trim()
-        def pipShowB64= sh(script: "echo \"${pipShowOutput}\" | base64 -w0 " ,returnStdout: true ).trim()
+        def pipFreezeB64= sh(script: 'echo "${pipFreezeOutput}" | base64 -w0' ,returnStdout: true ).trim()
+        def pipShowB64= sh(script: 'echo "${pipShowOutput}" | base64 -w0',returnStdout: true ).trim()
         echo "pipFreezeB64= ${pipFreezeB64}"
         echo "pipShowpipShowB64= ${pipShowB64}"
         withEnv(["EXHORT_PIP_FREEZE=${pipFreezeB64}","EXHORT_PIP_SHOW=${pipShowB64}"]) {
