@@ -4,19 +4,23 @@ node {
     def pipFreezeOutput
     def pipShowOutput
     def pythonImage = "python:${params.PYTHON_VERSION}-slim"
+    def gitRepoWithRequirements = "${params.REQUIREMENTS_GIT_REPO}"
+    stage('Fetch Pretender pip Script') { // for display purposes
+        // Get some code from a GitHub repository
+        git  branch: 'main', url:'https://github.com/zvigrinberg/rhda-pipelines-examples.git'
+        jdk = tool 'jdk11'
+        stash includes: 'python-pip/using-mock-script/pythonMock.sh', name: 'pretenderScript'
+
+
+    }
     stage('Checkout Git Repo') { // for display purposes
         // Get some code from a GitHub repository
-        def test = '/home/zgrinber/.jenkins/workspace/run RHDA plugin with python'.replaceAll(" ", "\\\\ ")
-        echo "test=${test}"
-        git  branch: 'main', url:'https://github.com/zvigrinberg/rhda-pipelines-examples.git'
-        sh 'mkdir -p /tmp/jenkins-test-pip ; cp requirements.txt /tmp/jenkins-test-pip/requirements.txt'
-        // Get the Maven tool.
-        // ** NOTE: This 'M3' Maven tool must be configured
-        // **       in the global configuration.
+        git  branch: 'main', url: gitRepoWithRequirements
         jdk = tool 'jdk11'
 
 
     }
+
     stage('Install Python Package') {
         docker.withTool('docker-tool') {
             docker.withServer('tcp://localhost:2376','docker-server-certs'){
@@ -40,7 +44,7 @@ node {
         def rhdaWorkspace = env.WORKSPACE
         escapedWorkspace = rhdaWorkspace.toString().replaceAll(" ", "\\\\ ")
         echo "escapedWorkspace= ${escapedWorkspace}"
-        // sh 'cp pythonMock.sh /tmp/pip ; chmod +x /tmp/pip'
+        unstash 'pretenderScript'
         def doubleEscapedWorkspace = escapedWorkspace.replaceAll("\\\\","\\\\\\\\").replaceAll("\\/","\\\\/")
         echo "doubleEscapedWorkspace= ${doubleEscapedWorkspace}"
 // sh(script: "echo ${escapedWorkspace} | sed 's/\\/\\\\/g' | sed 's/\//\\\//g'" ,returnStdout: true ).trim()
