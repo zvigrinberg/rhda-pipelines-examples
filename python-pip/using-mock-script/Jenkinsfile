@@ -3,7 +3,7 @@ node {
     def dockerArguments= '--user=root'
     def pipFreezeOutput
     def pipShowOutput
-    def pythonImage = "${params.PYTHON_VERSION}-slim"
+    def pythonImage = "python:${params.PYTHON_VERSION}-slim"
     stage('Checkout Git Repo') { // for display purposes
         // Get some code from a GitHub repository
         def test = '/home/zgrinber/.jenkins/workspace/run RHDA plugin with python'.replaceAll(" ", "\\\\ ")
