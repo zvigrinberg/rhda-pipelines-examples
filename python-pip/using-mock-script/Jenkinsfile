@@ -6,6 +6,7 @@ node {
     def pythonImage = "python:${params.PYTHON_VERSION}-slim"
     def gitRepoWithRequirements = "${params.REQUIREMENTS_GIT_REPO}"
     def gitRepoWithRequirementsBranch = "${params.REQUIREMENTS_GIT_BRANCH}"
+    final VULNERABLE_RETURN_CODE = "2"
 
     stage('Fetch Pretender pip script') { // for display purposes
         // Get some code from a GitHub repository
@@ -54,7 +55,10 @@ node {
         echo "escapedWorkspace= ${escapedWorkspace}"
         withEnv(["WORKSPACE_PATH=${escapedWorkspace}","EXHORT_PIP3_PATH=/tmp/pip","EXHORT_PYTHON3_PATH=/tmp/pip"]) {
 
-            rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/requirementsDir/requirements.txt"
+            def result = rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/requirementsDir/requirements.txt"
+            if(result.trim().equals(VULNERABLE_RETURN_CODE) ) {
+                unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
+            }
         }
 
     }

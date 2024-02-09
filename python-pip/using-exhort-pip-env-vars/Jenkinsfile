@@ -6,6 +6,7 @@ node {
     def pythonImage = "python:${params.PYTHON_VERSION}-slim"
     def gitRepoWithRequirements = "${params.REQUIREMENTS_GIT_REPO}"
     def gitRepoWithRequirementsBranch = "${params.REQUIREMENTS_GIT_BRANCH}"
+    final VULNERABLE_RETURN_CODE = "2"
 
 
     stage('Checkout Git Repo') { // for display purposes
@@ -40,7 +41,10 @@ node {
         echo "pipShowpipShowB64= ${pipShowB64}"
         withEnv(["EXHORT_PIP_FREEZE=${pipFreezeB64}","EXHORT_PIP_SHOW=${pipShowB64}"]) {
 
-            rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/requirementsDir/requirements.txt"
+            def result = rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/requirementsDir/requirements.txt"
+            if(result.trim().equals(VULNERABLE_RETURN_CODE) ) {
+                unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
+            }
         }
 
     }
