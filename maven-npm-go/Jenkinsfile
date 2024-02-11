@@ -1,0 +1,77 @@
+pipeline {
+    agent any
+    parameters {
+        choice(name: 'MANIFEST_TYPE', choices: ['maven', 'npm', 'golang'], description: 'manifest type to run analysis on')
+        string(name: 'gitRepoWithManifestBranch', defaultValue: "main", description: 'git repository of manifest branch')
+        string(name: 'gitRepoWithManifest', defaultValue: "https://github.com/zvigrinberg/rhda-pipelines-examples.git", description: 'git repository of manifest')
+    }
+    stages {
+        stage('checkout manifest Repository') {
+            git branch: gitRepoWithManifestBranch, url: gitRepoWithManifest
+        }
+
+        stage('RHDA Analysis - Maven') {
+            when {
+                expression { params.MANIFEST_TYPE == 'maven' }
+            }
+            tools {
+                maven 'apache-maven'
+            }
+            environment {
+                EXHORT_MVN_PATH = sh(returnStdout: true, script: 'which mvn')
+            }
+            steps {
+                script {
+                    invokeRhdaAnalysis("pom.xml")
+                }  
+            }
+        }
+        stage('RHDA Analysis - Npm') {
+            when {
+                expression { params.MANIFEST_TYPE == 'npm' }
+            }
+            tools {
+                node 'node'
+            }
+            environment {
+                EXHORT_NPM_PATH = sh(returnStdout: true, script: 'which npm')
+            }
+            steps {
+                script {
+                    invokeRhdaAnalysis("package.json")
+                }
+            }
+        }
+
+        stage('RHDA Analysis - go') {
+            when {
+                expression { params.MANIFEST_TYPE == 'go' }
+            }
+            tools {
+                go 'golang'
+            }
+            environment {
+                EXHORT_NPM_PATH = sh(returnStdout: true, script: 'which go')
+            }
+            steps {
+                script {
+                    invokeRhdaAnalysis("package.json")
+                }
+            }
+        }
+
+        stage('Clean Workspace') {
+            cleanWs cleanWhenAborted: false, cleanWhenFailure: false, cleanWhenNotBuilt: false, cleanWhenUnstable: false
+        }
+
+
+    }
+}
+
+private void invokeRhdaAnalysis(String manifestName) {
+    final VULNERABLE_RETURN_CODE = "2"
+    def result = rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/${manifestName}"
+    if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
+        unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
+    }
+}
