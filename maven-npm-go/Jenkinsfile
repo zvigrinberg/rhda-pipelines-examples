@@ -92,7 +92,7 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
             unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
         }
     }
-    catch (exception e) {
+    catch (java.lang.Exception e) {
         error(message: "Intercepted Error --> ${e}")
     }
 }
