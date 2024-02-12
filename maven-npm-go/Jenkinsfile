@@ -2,13 +2,13 @@ pipeline {
     agent any
     parameters {
         choice(name: 'MANIFEST_TYPE', choices: ['maven', 'npm', 'golang'], description: 'manifest type to run analysis on')
-        string(name: 'gitRepoWithManifestBranch', defaultValue: "main", description: 'git repository of manifest branch')
-        string(name: 'gitRepoWithManifest', defaultValue: "https://github.com/zvigrinberg/rhda-pipelines-examples.git", description: 'git repository of manifest')
-        string(name: 'pathToManifestDir', defaultValue: "", description: 'git repository of manifest')
+        string(name: 'MANIFEST_GIT_BRANCH', defaultValue: "main", description: 'git repository of manifest branch')
+        string(name: 'MANIFEST_GIT_REPO', defaultValue: "https://github.com/zvigrinberg/rhda-pipelines-examples.git", description: 'git repository of manifest')
+        string(name: 'MANIFEST_DIR', defaultValue: "", description: 'git repository of manifest')
     }
     stages {
         stage('checkout manifest Repository') {
-            git branch: gitRepoWithManifestBranch, url: gitRepoWithManifest
+            git branch: MANIFEST_GIT_BRANCH, url: MANIFEST_GIT_REPO
         }
 
         stage('RHDA Analysis - Maven') {
@@ -23,8 +23,8 @@ pipeline {
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("pom.xml",pathToManifestDir)
-                }  
+                    invokeRhdaAnalysis("pom.xml",MANIFEST_DIR)
+                }
             }
         }
         stage('RHDA Analysis - Npm') {
@@ -39,7 +39,7 @@ pipeline {
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("package.json",pathToManifestDir)
+                    invokeRhdaAnalysis("package.json",MANIFEST_DIR)
                 }
             }
         }
@@ -56,7 +56,7 @@ pipeline {
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("go.mod",pathToManifestDir)
+                    invokeRhdaAnalysis("go.mod",MANIFEST_DIR)
                 }
             }
         }
