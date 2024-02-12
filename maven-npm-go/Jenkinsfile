@@ -4,6 +4,7 @@ pipeline {
         choice(name: 'MANIFEST_TYPE', choices: ['maven', 'npm', 'golang'], description: 'manifest type to run analysis on')
         string(name: 'gitRepoWithManifestBranch', defaultValue: "main", description: 'git repository of manifest branch')
         string(name: 'gitRepoWithManifest', defaultValue: "https://github.com/zvigrinberg/rhda-pipelines-examples.git", description: 'git repository of manifest')
+        string(name: 'pathToManifestDir', defaultValue: "", description: 'git repository of manifest')
     }
     stages {
         stage('checkout manifest Repository') {
@@ -18,11 +19,11 @@ pipeline {
                 maven 'apache-maven'
             }
             environment {
-                EXHORT_MVN_PATH = sh(returnStdout: true, script: 'which mvn')
+                EXHORT_MVN_PATH = getPathOfBinary("mvn")
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("pom.xml")
+                    invokeRhdaAnalysis("pom.xml",pathToManifestDir)
                 }  
             }
         }
@@ -34,11 +35,11 @@ pipeline {
                 node 'node'
             }
             environment {
-                EXHORT_NPM_PATH = sh(returnStdout: true, script: 'which npm')
+                EXHORT_NPM_PATH =  getPathOfBinary("npm")
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("package.json")
+                    invokeRhdaAnalysis("package.json",pathToManifestDir)
                 }
             }
         }
@@ -51,11 +52,11 @@ pipeline {
                 go 'golang'
             }
             environment {
-                EXHORT_NPM_PATH = sh(returnStdout: true, script: 'which go')
+                EXHORT_NPM_PATH = getPathOfBinary("go")
             }
             steps {
                 script {
-                    invokeRhdaAnalysis("package.json")
+                    invokeRhdaAnalysis("go.mod",pathToManifestDir)
                 }
             }
         }
@@ -68,9 +69,20 @@ pipeline {
     }
 }
 
-private void invokeRhdaAnalysis(String manifestName) {
+private String getPathOfBinary(String packageManifest) {
+         return sh(returnStdout: true, script: "which ${packageManifest}")
+}
+
+private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
     final VULNERABLE_RETURN_CODE = "2"
-    def result = rhdaAnalysis consentTelemetry: true, file: "${WORKSPACE}/${manifestName}"
+    def theFile
+    if(pathToManifestDir.trim().equals("")) {
+        theFile = "${WORKSPACE}/${manifestName}"
+    }
+    else {
+        theFile = "${WORKSPACE}/${pathToManifestDir}/${manifestName}"
+    }
+    def result = rhdaAnalysis consentTelemetry: true, file: theFile
     if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
         unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
     }
