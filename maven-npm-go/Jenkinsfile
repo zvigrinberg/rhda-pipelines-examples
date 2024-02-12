@@ -79,6 +79,7 @@ private String getPathOfBinary(String packageManifest) {
 
 private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
     final VULNERABLE_RETURN_CODE = "2"
+    final GENERAL_ERROR_RETURN_CODE = "1"
     def theFile
     if(pathToManifestDir.trim().equals("")) {
         theFile = "${WORKSPACE}/${manifestName}"
@@ -91,6 +92,12 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
         if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
             unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
         }
+        else {
+            if(result.trim().equals(GENERAL_ERROR_RETURN_CODE)) {
+                error(message: "Failed To Invoke RHDA Analysis")
+            }
+        }
+
     }
     catch (Exception e) {
         error(message: "Intercepted Error --> ${e}")
