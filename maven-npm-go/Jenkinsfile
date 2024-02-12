@@ -34,7 +34,7 @@ pipeline {
                 expression { params.MANIFEST_TYPE == 'npm' }
             }
             tools {
-                node 'node-lts'
+                nodejs 'node-lts'
             }
             environment {
                 EXHORT_NPM_PATH =  getPathOfBinary("npm")
