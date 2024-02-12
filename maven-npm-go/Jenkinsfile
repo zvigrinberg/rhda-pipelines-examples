@@ -8,7 +8,9 @@ pipeline {
     }
     stages {
         stage('checkout manifest Repository') {
-            git branch: MANIFEST_GIT_BRANCH, url: MANIFEST_GIT_REPO
+            steps {
+                git branch: MANIFEST_GIT_BRANCH, url: MANIFEST_GIT_REPO
+            }
         }
 
         stage('RHDA Analysis - Maven') {
