@@ -86,8 +86,13 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
     else {
         theFile = "${WORKSPACE}/${pathToManifestDir}/${manifestName}"
     }
-    def result = rhdaAnalysis consentTelemetry: true, file: theFile
-    if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
-        unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
+    try {
+        def result = rhdaAnalysis consentTelemetry: true, file: theFile
+        if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
+            unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
+        }
+    }
+    catch (exception e) {
+        error(message: "Intercepted Error --> ${e}")
     }
 }
