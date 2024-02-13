@@ -35,7 +35,9 @@ pipeline {
             steps {
                 script {
                     def node = tool 'node-lts'
-                    env.EXHORT_MPM_PATH = "$node/bin/npm"
+                    env.EXHORT_NPM_PATH = "$node/bin/npm"
+                    echo "node=$node"
+                    sh 'echo "exhort npm path = ${EXHORT_NPM_PATH}"'
                     invokeRhdaAnalysis("package.json",MANIFEST_DIR)
                 }
             }
@@ -48,7 +50,9 @@ pipeline {
             steps {
                 script {
                     def go = tool 'golang'
-                    env.EXHORT_GO_PATH = "$go/bin/npm"
+                    env.EXHORT_GO_PATH = "$go/bin/go"
+                    echo "go=$go"
+                    sh 'echo "exhort go path = ${EXHORT_GO_PATH}"'
                     invokeRhdaAnalysis("go.mod",MANIFEST_DIR)
                 }
             }
@@ -79,7 +83,7 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
         theFile = "${WORKSPACE}/${pathToManifestDir}/${manifestName}"
         echo "theFile=${theFile}"
     }
-    try {
+
         withEnv(['EXHORT_DEBUG=true']) {
             def result = rhdaAnalysis consentTelemetry: true, file: theFile
         }
@@ -91,9 +95,4 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
                 error(message: "Failed To Invoke RHDA Analysis")
             }
         }
-
-    }
-    catch (Exception e) {
-        error(message: "Intercepted Error --> ${e}")
-    }
 }
