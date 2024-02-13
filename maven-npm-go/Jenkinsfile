@@ -45,7 +45,7 @@ pipeline {
 
         stage('RHDA Analysis - go') {
             when {
-                expression { params.MANIFEST_TYPE == 'go' }
+                expression { params.MANIFEST_TYPE == 'golang' }
             }
             steps {
                 script {
@@ -83,9 +83,10 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
         theFile = "${WORKSPACE}/${pathToManifestDir}/${manifestName}"
         echo "theFile=${theFile}"
     }
-
+    try {
+        def result
         withEnv(['EXHORT_DEBUG=true']) {
-            def result = rhdaAnalysis consentTelemetry: true, file: theFile
+            result = rhdaAnalysis consentTelemetry: true, file: theFile
         }
         if (result.trim().equals(VULNERABLE_RETURN_CODE)) {
             unstable(message: "There are some vulnerabilities in Manifest, please upgrade according to the report")
@@ -95,4 +96,8 @@ private void invokeRhdaAnalysis(String manifestName,String pathToManifestDir) {
                 error(message: "Failed To Invoke RHDA Analysis")
             }
         }
+    }
+    catch (Exception e) {
+        error(message: "Intercepted Error --> ${e}")
+    }
 }
