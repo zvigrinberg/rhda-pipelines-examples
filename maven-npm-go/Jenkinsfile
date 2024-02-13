@@ -51,8 +51,6 @@ pipeline {
                 script {
                     def go = tool 'golang'
                     env.EXHORT_GO_PATH = "$go/bin/go"
-                    echo "go=$go"
-                    sh 'echo "exhort go path = ${EXHORT_GO_PATH}"'
                     invokeRhdaAnalysis("go.mod",MANIFEST_DIR)
                 }
             }
