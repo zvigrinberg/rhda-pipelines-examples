@@ -1,9 +1,9 @@
 # rhda-pipelines-examples
-Bring some examples of how to use RHDA Jenkins plugin
+Bring some examples of how to use [RHDA Jenkins plugin](https://plugins.jenkins.io/redhat-dependency-analytics/)
 
 
 ## Prerequisites
-1. Download Jenkins LTS and Run it on your machine
+1. Download Jenkins LTS and deploy it on your machine
 ```shell
 curl -X GET https://get.jenkins.io/war-stable/2.426.3/jenkins.war -o /tmp/jenkins.war
 # run jenkins on http://localhost:8080
@@ -18,7 +18,7 @@ podman volume create some-docker-certs-client
 podman network create docker-network
 podman run --privileged --user=root --name docker -d --network docker-network -e DOCKER_TLS_CERTDIR=/certs -v some-docker-certs-ca:/certs/ca -v some-docker-certs-client:/certs/client -v $HOME/.jenkins/:$HOME/.jenkins -p 2376:2376 docker:dind
 ```
-
+3. Install Redhat Dependency Analytics Jenkins Plugin on your jenkins deployed instance - [Instructions](https://github.com/jenkinsci/redhat-dependency-analytics-plugin?tab=readme-ov-file#1-install-the-redhat-dependency-analytics-jenkins-plugin)
 ## Demos
 
 ### Python Pip 
@@ -89,6 +89,7 @@ node {
 ```
 
 #### Pipeline Using Pretender Script ( Scripted Pipeline)
+
 ```java
 node {
     def jdk
@@ -212,7 +213,8 @@ stage('Install Python Package') {
 ### Java Maven + NodeJS NPM + Golang Go Modules
 
  - For all these 3 package managers we will use jenkins tools that will be injected to pipeline
-
+#### Configuration
+ - Need to install [Build With Parameters Plugin](https://plugins.jenkins.io/build-with-parameters/)
 #### Pipeline Example ( Declarative Pipeline)
 ```java
 pipeline {
