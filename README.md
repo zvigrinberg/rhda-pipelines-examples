@@ -215,6 +215,8 @@ stage('Install Python Package') {
  - For all these 3 package managers we will use jenkins tools that will be injected to pipeline
 #### Configuration
  - Need to install [Build With Parameters Plugin](https://plugins.jenkins.io/build-with-parameters/)
+ - Need to install [Go Jenkins Plugin ](https://plugins.jenkins.io/golang/) and define tool with the name that defined in the pipeline
+ - Need to Install [NodeJS Jenkins Plugin ]([https://plugins.jenkins.io/golang/](https://plugins.jenkins.io/nodejs/)) and define tool with the name that defined in the pipeline
 #### Pipeline Example ( Declarative Pipeline)
 ```java
 pipeline {
