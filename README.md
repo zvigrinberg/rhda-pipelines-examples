@@ -21,6 +21,30 @@ podman run --privileged --user=root --name docker -d --network docker-network -e
 3. Install Redhat Dependency Analytics Jenkins Plugin on your jenkins deployed instance - [Instructions](https://github.com/jenkinsci/redhat-dependency-analytics-plugin?tab=readme-ov-file#1-install-the-redhat-dependency-analytics-jenkins-plugin)
 ## Demos
 
+### Basic generic Pipeline
+__Note: This pipeline assumes that package managers binaries installed in the jenkins master/agent, and that manifest file pre installed ( needed for python)__
+
+```java
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the Git repository
+                checkout([$class: 'GitSCM', branches: [[name: 'main']], userRemoteConfigs: [[url: '[https://github.com/Your github project link.git']]](https://github.com/Your github project link.git)])
+            }
+        }
+        stage('RHDA Step') {
+            steps {
+                echo 'RHDA'
+                rhdaAnalysis consentTelemetry: true, file: '/path/to/manifest/in/workspace'
+            }
+        }
+    }
+}
+
+```
+
 ### Python Pip 
 
 #### Configuration
