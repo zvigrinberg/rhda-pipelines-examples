@@ -197,8 +197,8 @@ stage('Install Python Package') {
         
         pipFreezeOutput=sh(script:"podman exec python-run -- pip freeze --all",returnStdout:true).trim()
         writeFile([file:'pip-freeze.txt',text:pipFreezeOutput])
-        pipFreezeOutput=sh(script:"podman exec python-run --pip freeze --all | awk -F \"==\" '{print \$1}' | tr \"\n\" \" \"",returnStdout:true).trim()
-        pipShowOutput=sh(script:"pip show ${pipFreezeOutput}",returnStdout:true)
+        pipFreezeOutput=sh(script:"podman exec python-run -- pip freeze --all | awk -F \"==\" '{print \$1}' | tr \"\n\" \" \"",returnStdout:true).trim()
+        pipShowOutput=sh(script:"podman exec python-run -- pip show ${pipFreezeOutput}",returnStdout:true)
         writeFile([file:'pip-show.txt',text:pipShowOutput])
         sh 'podman stop python-run'
         sh 'podman rm python-run'
