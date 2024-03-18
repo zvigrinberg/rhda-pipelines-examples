@@ -44,7 +44,38 @@ pipeline {
 }
 
 ```
+We can even make sure that the manifest will be installed, in case the manifest type is python PIP - `requirements.txt`
+```java
 
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the Git repository
+                checkout([$class: 'GitSCM', branches: [[name: 'main']], userRemoteConfigs: [[url: '[https://github.com/Your github project link.git']]](https://github.com/Your github project link.git)])
+            }
+        }
+        stage ('Install requirements.txt if Python PIP') {
+            steps {
+                script {
+                    if (fileExists('/path/in/workspace/to/requirements.txt')) {
+                        sh 'pip install -r /path/in/workspace/to/requirements.txt'
+                    }
+                }
+            }
+        }
+        stage('RHDA Step') {
+            steps {
+                echo 'RHDA'
+                rhdaAnalysis consentTelemetry: true, file: 'manifestName.extension'
+            }
+        }
+    }
+}
+
+
+```
 ### Python Pip 
 
 #### Configuration
